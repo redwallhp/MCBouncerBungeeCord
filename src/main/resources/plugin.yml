@@ -1,0 +1,4 @@
+name: MCBouncer
+main: com.mcbouncer.bungee.MCBouncer
+version: ${pom.version}-${build.number}
+author: Deaygo
