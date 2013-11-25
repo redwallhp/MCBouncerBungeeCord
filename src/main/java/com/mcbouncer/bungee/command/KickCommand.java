@@ -44,7 +44,7 @@ public class KickCommand extends Command {
 
                 ProxiedPlayer p = plugin.getProxy().getPlayer(toKick);
                 if (p != null) {
-                    p.disconnect("Banned: " + reason);
+                    p.disconnect("Kicked: " + reason);
                 }
                 
                 String message = ChatColor.GREEN + "User " + toKick + " has been kicked by " + sender.getName() + ". (" + reason + ")";
