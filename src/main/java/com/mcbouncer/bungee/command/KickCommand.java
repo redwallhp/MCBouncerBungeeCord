@@ -22,12 +22,12 @@ public class KickCommand extends Command {
 
             public void run() {
                 ProxiedPlayer player = null;
-                
+
                 if (!sender.hasPermission("mcbouncer.mod")) {
                     sender.sendMessage(ChatColor.RED + "You need permission to run that command.");
                     return;
                 }
-                
+
                 if (sender instanceof ProxiedPlayer) {
                     player = (ProxiedPlayer)sender;
                 }
@@ -37,27 +37,16 @@ public class KickCommand extends Command {
                 }
                 String toKick = args[0];
                 String reason = plugin.config.defaultKickMessage;
-                
+
                 if (args.length > 1) {
                     reason = MiscUtils.join(args, " ", 1, args.length);
                 }
 
                 ProxiedPlayer p = plugin.getProxy().getPlayer(toKick);
                 if (p != null) {
-                    p.disconnect("Kicked: " + reason);
-                }
-                
-                String message = ChatColor.GREEN + "User " + toKick + " has been kicked by " + sender.getName() + ". (" + reason + ")";
-                plugin.getLogger().info(ChatColor.stripColor(message));
-                if (plugin.config.showBanMessages) {
-                    plugin.getProxy().broadcast(message);
-                }
-                else {
-                    for (ProxiedPlayer pl : plugin.getProxy().getPlayers()) {
-                        if (pl.hasPermission("mcbouncer.mod")) {
-                            pl.sendMessage(message);
-                        }
-                    }
+                	plugin.kick(player, p, reason);
+                } else {
+                	sender.sendMessage(toKick + " not found");
                 }
             }
         });

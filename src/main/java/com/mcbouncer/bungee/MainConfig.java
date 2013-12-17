@@ -37,4 +37,6 @@ public class MainConfig extends Config {
     @Comment("Whether or not to show messgaes to all the users on the server when a user is banned.")
     public Boolean showBanMessages = false;
     
+    @Comment("Whether or not to show messgaes to all the users on the server when a note is added to a user.")
+    public Boolean showNoteMessages = false;
 }

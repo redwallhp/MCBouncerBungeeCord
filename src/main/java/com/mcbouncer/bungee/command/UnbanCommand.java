@@ -23,12 +23,12 @@ public class UnbanCommand extends Command {
 
             public void run() {
                 ProxiedPlayer player = null;
-                
+
                 if (!sender.hasPermission("mcbouncer.mod")) {
                     sender.sendMessage(ChatColor.RED + "You need permission to run that command.");
                     return;
                 }
-                
+
                 if (sender instanceof ProxiedPlayer) {
                     player = (ProxiedPlayer)sender;
                 }
@@ -37,26 +37,15 @@ public class UnbanCommand extends Command {
                     return;
                 }
                 String toUnban = args[0];
-                
-                boolean success = false;
+
                 try {
-                    success = plugin.api.removeBan(toUnban);
+                	plugin.unban(player, toUnban);
                 } catch (NetworkException ex) {
                     sender.sendMessage(ChatColor.RED + "Network error, could, not reach mcbouncer.com");
                 } catch (APIException ex) {
                     sender.sendMessage(ChatColor.RED + ex.getMessage());
                 }
-                
-                if (success) {
-                    String message = ChatColor.GREEN + "User " + toUnban + " unbanned by " + sender.getName();
-                    for (ProxiedPlayer pl : plugin.getProxy().getPlayers()) {
-                        if (pl.hasPermission("mcbouncer.mod")) {
-                            pl.sendMessage(message);
-                        }
-                    }
-                }
             }
         });
     }
-    
 }
