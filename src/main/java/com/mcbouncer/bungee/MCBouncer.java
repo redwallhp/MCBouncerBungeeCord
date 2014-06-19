@@ -8,6 +8,7 @@ import com.mcbouncer.api.UserNote;
 import com.mcbouncer.bungee.command.*;
 import com.mcbouncer.bungee.listener.PluginMessageListener;
 import com.mcbouncer.bungee.listener.ProxiedPlayerListener;
+import com.mcbouncer.bungee.listener.ServerConnectedListener;
 import com.mcbouncer.exception.APIException;
 import com.mcbouncer.exception.NetworkException;
 
@@ -26,6 +27,7 @@ public class MCBouncer extends Plugin {
         api = new MCBouncerAPI("http://mcbouncer.com", config.apikey);
         getProxy().getPluginManager().registerListener(this, new ProxiedPlayerListener(this));
         getProxy().getPluginManager().registerListener(this, new PluginMessageListener(this));
+        getProxy().getPluginManager().registerListener(this, new ServerConnectedListener(this));
         getProxy().getPluginManager().registerCommand(this, new BanCommand(this));
         getProxy().getPluginManager().registerCommand(this, new KickCommand(this));
         getProxy().getPluginManager().registerCommand(this, new LookupCommand(this));
@@ -55,7 +57,7 @@ public class MCBouncer extends Plugin {
             else {
                 for (ProxiedPlayer pl : getProxy().getPlayers()) {
                     if (pl.hasPermission("mcbouncer.mod")) {
-                        pl.sendMessage(message);
+                        pl.sendMessage(message + " while on " + sender.getServer().getInfo().getName());
                     }
                 }
             }
@@ -80,7 +82,7 @@ public class MCBouncer extends Plugin {
             else {
                 for (ProxiedPlayer pl : getProxy().getPlayers()) {
                     if (pl.hasPermission("mcbouncer.mod")) {
-                        pl.sendMessage(message);
+                        pl.sendMessage(message + " while on " + baner.getServer().getInfo().getName());
                     }
                 }
             }
@@ -107,14 +109,16 @@ public class MCBouncer extends Plugin {
         player.sendMessage(ChatColor.AQUA + username + " has " + bans.size() + " ban" + (bans.size() == 1 ? "" : "s") + " and " + notes.size() + " note" + (notes.size() == 1 ? "" : "s"));
 
         for (int i = 0; i < bans.size() && i < 5; i++) {
-        	player.sendMessage(ChatColor.GREEN + "Ban #" + (i + 1) + ": " + bans.get(i).getServer() + " (" + bans.get(i).getIssuer() + ") [" + bans.get(i).getReason() + "]");
+        	UserBan ban = bans.get(i);
+        	player.sendMessage(ChatColor.GREEN + "Ban #" + (i + 1) + ": " + ban.getServer() + " (" + ban.getIssuer() + ") [" + ban.getReason() + "] " + ban.getTime());
         }
 
         for (int i = 0; i < notes.size(); i++) {
-            if (notes.get(i).isGlobal()) {
-            	player.sendMessage(ChatColor.GREEN + "Note #" + notes.get(i).getNoteID().toString() + " - GLOBAL: " + notes.get(i).getServer() + " (" + notes.get(i).getIssuer() + ") [" + notes.get(i).getNote() + "]");
+        	UserNote note = notes.get(i);
+            if (note.isGlobal()) {
+            	player.sendMessage(ChatColor.GREEN + "Note #" + note.getNoteID().toString() + " - GLOBAL: " + note.getServer() + " (" + note.getIssuer() + ") [" + note.getNote() + "] " + note.getTime());
             } else {
-            	player.sendMessage(ChatColor.GREEN + "Note #" + notes.get(i).getNoteID().toString() + ": " + notes.get(i).getServer() + " (" + notes.get(i).getIssuer() + ") [" + notes.get(i).getNote() + "]");
+            	player.sendMessage(ChatColor.GREEN + "Note #" + note.getNoteID().toString() + ": " + note.getServer() + " (" + note.getIssuer() + ") [" + note.getNote() + "] " + note.getTime());
             }
         }
     }
