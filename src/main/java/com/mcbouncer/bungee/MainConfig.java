@@ -2,9 +2,9 @@ package com.mcbouncer.bungee;
 
 import java.io.File;
 import java.util.logging.Level;
-import net.craftminecraft.bungee.bungeeyaml.bukkitapi.InvalidConfigurationException;
-import net.craftminecraft.bungee.bungeeyaml.supereasyconfig.Comment;
-import net.craftminecraft.bungee.bungeeyaml.supereasyconfig.Config;
+import net.cubespace.Yamler.Config.Comment;
+import net.cubespace.Yamler.Config.Config;
+import net.cubespace.Yamler.Config.InvalidConfigurationException;
 
 public class MainConfig extends Config {
     
@@ -14,7 +14,7 @@ public class MainConfig extends Config {
     public MainConfig(MCBouncer plugin) {
         this.plugin = plugin;
         CONFIG_FILE = new File(plugin.getDataFolder(), "config.yml");
-        CONFIG_HEADER = "MCBouncer Config file";
+        CONFIG_HEADER = new String[]{"MCBouncer Config file"};
         try {
             this.init();
         } catch (InvalidConfigurationException e) {
@@ -39,4 +39,10 @@ public class MainConfig extends Config {
     
     @Comment("Whether or not to show messgaes to all the users on the server when a note is added to a user.")
     public Boolean showNoteMessages = false;
+
+	@Comment("Whether or not to use a local cache to store bans")
+	public Boolean useCacheDB = false;
+
+	@Comment("Wehether or not to import bans.txt on startup")
+	public Boolean importBansOnStart = false;
 }

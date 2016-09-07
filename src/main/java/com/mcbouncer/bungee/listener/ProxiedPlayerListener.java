@@ -6,6 +6,7 @@ import com.mcbouncer.exception.APIException;
 import com.mcbouncer.exception.NetworkException;
 
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
@@ -18,34 +19,42 @@ public class ProxiedPlayerListener implements Listener {
     public ProxiedPlayerListener(MCBouncer plugin) {
         this.plugin = plugin;
     }
-    
+
     @EventHandler
     public void onPlayerJoin(final LoginEvent event) {
         event.registerIntent(plugin);
         plugin.getProxy().getScheduler().runAsync(plugin, new Runnable() {
             public void run() {
-                try {
-                    String username = event.getConnection().getName();
-                    String ip = event.getConnection().getAddress().getAddress().getHostAddress();
-                    plugin.api.updateUser(username, ip);
+				boolean isBanned = false;
+				String reason = plugin.config.defaultBanMessage;
+				final String username = event.getConnection().getName();
+				final String ip = event.getConnection().getAddress().getAddress().getHostAddress();
 
-                    if (plugin.api.isBanned(username)) {
-                        String reason = plugin.api.getBanReason(username);
-                        event.setCancelled(true);
-                        event.setCancelReason("Banned: " + reason);
-                    }
+                try {
+					plugin.getLogger().info("Looking up user " + username);
+					isBanned = plugin.api.isBanned(username);
+					reason = plugin.api.getBanReason(username);
+
+					plugin.getProxy().getScheduler().runAsync(plugin, new Runnable() {
+						public void run() {
+							try {
+								plugin.api.updateUser(username, ip);
+							} catch (Exception e) {	}
+						}
+					});
                 }
                 catch (NetworkException ex) {
-                    plugin.getLogger().log(Level.INFO, "Error looking up user on join", ex);
-                    event.setCancelled(true);
-                    event.setCancelReason("Network Error");
+                    plugin.getLogger().log(Level.INFO, "Network error while looking up user " + username, ex);
                 }
                 catch (APIException ex) {
-                    plugin.getLogger().log(Level.INFO, "API Error while looking up user on join", ex);
-                    event.setCancelled(true);
-                    event.setCancelReason("MCBouncer Error");
+                    plugin.getLogger().log(Level.INFO, "API error while looking up user " + username, ex);
                 }
                 finally {
+					if (isBanned || plugin.isCachedBan(username)) {
+						event.setCancelled(true);
+						event.setCancelReason("Banned: " + reason);
+					}
+
                     event.completeIntent(plugin);
                 }
             }

@@ -1,10 +1,14 @@
 package com.mcbouncer.bungee.command;
 
+import com.mcbouncer.api.UserBan;
+import com.mcbouncer.bungee.Ban;
 import com.mcbouncer.bungee.MCBouncer;
 import com.mcbouncer.exception.APIException;
 import com.mcbouncer.exception.NetworkException;
 import com.mcbouncer.util.MiscUtils;
-
+import com.mcbouncer.util.node.MapNode;
+import java.util.HashMap;
+import java.util.Map;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -50,7 +54,18 @@ public class BanCommand extends Command {
 	            } catch (NetworkException ex) {
 	                sender.sendMessage(ChatColor.RED + "Network Timeout, could, not reach mcbouncer.com");
 	            } catch (APIException ex) {
-	                sender.sendMessage(ChatColor.RED + "An API Error Occured.");
+	                sender.sendMessage(ChatColor.RED + "An API Error Occured. The ban has been cached.");
+	                sender.sendMessage(ChatColor.RED + ex.getMessage());
+
+					Map<String, Object> base = new HashMap<String, Object>();
+					base.put("issuer", player.getName());
+					base.put("username", toBan);
+					base.put("reason", reason);
+
+					MapNode mapNode = new MapNode(base);
+					UserBan userBan = new UserBan(mapNode);
+
+					plugin.cachedBans.add(userBan);
 	            }
             }
         });
