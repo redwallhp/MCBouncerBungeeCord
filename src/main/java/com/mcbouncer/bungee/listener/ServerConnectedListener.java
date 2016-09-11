@@ -22,37 +22,38 @@ public class ServerConnectedListener implements Listener {
 
     @EventHandler
     public void onPlayerConnect(final ServerConnectedEvent event) {
-        try {
-        	ProxiedPlayer player = event.getPlayer();
+        plugin.getProxy().getScheduler().runAsync(plugin, new Runnable() {
+            public void run() {
+                try {
+                    ProxiedPlayer player = event.getPlayer();
 
-            int numBans = plugin.api.getBanCount(player.getName());
-            int numNotes = plugin.api.getNoteCount(player.getName());
+                    int numBans = plugin.api.getBanCount(player.getName());
+                    int numNotes = plugin.api.getNoteCount(player.getName());
 
-			if (numBans > 0 || numNotes > 0) {
-				String message = player.getName() + " has ";
-				if (numNotes == 0) {
-					message += numBans + " ban" + (numBans == 1 ? "." : "s.");
-				} else if (numBans == 0) {
-					message += numNotes + " note" + (numNotes == 1 ? "." : "s.");
-				} else {
-					message += numBans + " ban" + (numBans == 1 ? "" : "s") + " and " + numNotes + " note" + (numNotes == 1 ? "." : "s.");
-				}
-                for (ProxiedPlayer pl : plugin.getProxy().getPlayers()) {
-                	if (pl.getServer() != null) {
-	                    if (pl.hasPermission("mcbouncer.mod") && pl.getServer().getInfo().getName() == event.getServer().getInfo().getName()) {
-	                        pl.sendMessage(ChatColor.GREEN + message);
-	                    }
-                	}
+                    if (numBans > 0 || numNotes > 0) {
+                        String message = player.getName() + " has ";
+                        if (numNotes == 0) {
+                            message += numBans + " ban" + (numBans == 1 ? "." : "s.");
+                        } else if (numBans == 0) {
+                            message += numNotes + " note" + (numNotes == 1 ? "." : "s.");
+                        } else {
+                            message += numBans + " ban" + (numBans == 1 ? "" : "s") + " and " + numNotes + " note" + (numNotes == 1 ? "." : "s.");
+                        }
+                        for (ProxiedPlayer pl : plugin.getProxy().getPlayers()) {
+                            if (pl.getServer() != null) {
+                                if (pl.hasPermission("mcbouncer.mod") && pl.getServer().getInfo().getName() == event.getServer().getInfo().getName()) {
+                                    pl.sendMessage(ChatColor.GREEN + message);
+                                }
+                            }
+                        }
+                    }
+                } catch (NetworkException ex) {
+                    plugin.getLogger().log(Level.INFO, "Error looking up user on join", ex);
+                } catch (APIException ex) {
+                    plugin.getLogger().log(Level.INFO, "API Error while looking up user on join", ex);
                 }
-			}
-        }
-        catch (NetworkException ex) {
-            plugin.getLogger().log(Level.INFO, "Error looking up user on join", ex);
-        }
-        catch (APIException ex) {
-            plugin.getLogger().log(Level.INFO, "API Error while looking up user on join", ex);
-        }
-        finally {
-        }
+            }
+        });
     }
+
 }
